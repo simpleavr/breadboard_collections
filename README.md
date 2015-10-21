@@ -16,7 +16,9 @@ The tenths of the minutes and the minutes are subsequently entered like the hour
 Once the hours and minutes (tenths and singles) have been entered, TCG returns to show mode
  
 Breadboard Layout
+_________________
 
+```
    +=====================================================+
    |  .  o-----(W3)-----o  .  .  .  .  .  .1>.  .8>.  .  |
    |  . (-) .  .  .  .  .  .  .  .  .  .+>.  .4>.  .3>.  |
@@ -32,9 +34,13 @@ Breadboard Layout
    |  .  o-----(W4)---+-o-[B]-o  .<4.  .<7.  .<8.  .  .  |
    +=====================================================+
 
+```
 
 
 Schematic
+_________
+```
+
                             MSP430G2xxx
                          -----------------
                         |                 |                   /|\
@@ -50,3 +56,4 @@ Schematic
     Crystal \-----------|P2.7(XOUT)   P1.7|--> ~~~~~~~ 
                         |                 |
 
+```
