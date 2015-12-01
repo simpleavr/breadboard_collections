@@ -408,15 +408,18 @@ void main(void) {
 						// surpress leading zero
 						if (hr<10) hr += 0x0b*10;
 						show_char(hr, 0x42);
-						for (i=0;i<8;i++) fb[i] <<= 2;
 #ifdef NO_C7
-						fb[3] |= 0x02;
-						fb[5] |= 0x02;
-#else
+						for (i=0;i<8;i++) fb[i] <<= 1;
 						fb[3] |= 0x01;
 						fb[5] |= 0x01;
-#endif
 						show_char(min, 0x4a);
+						for (i=8;i<16;i++) fb[i] >>= 1;
+#else
+						for (i=0;i<8;i++) fb[i] <<= 2;
+						fb[3] |= 0x01;
+						fb[5] |= 0x01;
+						show_char(min, 0x4a);
+#endif
 						state |= ST_SCROLL;
 						//scroll = 0;
 					}//else
