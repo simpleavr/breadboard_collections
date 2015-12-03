@@ -25,6 +25,7 @@
 
 #include <msp430.h>
 #include <stdlib.h>
+#include <stdint.h>
 #define G2412
 
 #define NO_C7	1	// not connecting C7 of led matrix as it interferes w/ 32khz xtal
@@ -506,7 +507,7 @@ void main(void) {
 					break;
 				case 5:			// blank
 
-					while (ticks%4) asm("nop");		// sync to 1/4 sec ticks
+					while (ticks%4) asm(" nop");		// sync to 1/4 sec ticks
 					P1DIR = P1OUT = 0;
 					P2DIR = P2OUT = 0;
 					P2REN = BUTTON_PIN;
@@ -533,7 +534,7 @@ void main(void) {
 
 					// we wake up here
 					if (P2IFG & BIT3) {		// from keypress
-						while (P2IN&BUTTON_PIN) __asm("nop"); 	// make sure key is not depressed
+						while (P2IN&BUTTON_PIN) __asm(" nop"); 	// make sure key is not depressed
 						if (last_mode && last_mode < 5 && !sleep_at) mode = last_mode - 1;
 						else mode = 5;
 						state |= ST_PRESSED;
@@ -696,7 +697,7 @@ void main(void) {
 			button_test >>= 1;
 			P1REN = button_test;
 			if (P1IN&button_test) {
-				while (P1IN&button_test) asm("nop");
+				while (P1IN&button_test) asm(" nop");
 				game_state |= button_test;
 			}//if
 			button_test >>= 1;
