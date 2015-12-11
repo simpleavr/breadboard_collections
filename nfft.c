@@ -283,7 +283,6 @@ volatile uint8_t fb[8];
 
 volatile uint8_t scan=0; 
 volatile uint8_t stays=0;
-volatile uint8_t dot=1;
 
 
 #define ST_BUSY		BIT0
@@ -292,6 +291,7 @@ volatile uint8_t dot=1;
 #define ST_PAINT	BIT3
 
 volatile uint8_t state = 0;
+volatile uint8_t bar = 1;
 volatile uint8_t menu = 0;
 volatile uint8_t pixel_test = 0;
 volatile uint8_t menu_val[3] = { 2, 2, 2, };		// hamming, drop, sampling rate
@@ -350,7 +350,8 @@ void scan_led() {
 			state |= ST_PAINT;
 		}//if
 		else {
-			dot ^= BIT1;
+			bar++;
+			bar &= 0x03;
 		}//else
 	}//if
 	if (state & ST_HOLD) {
@@ -361,7 +362,7 @@ void scan_led() {
 		//pixel_test = 63;
 	}//if
 
-	if (dot&BIT1) return;		// DEB
+	//if (bar&BIT1) return;		// DEB
 	//____________ get current row's port map
 	//uint8_t row_map = row_col_map[scan] >> 4;
 	uint8_t row_map = row_col_map[scan] &0x0f;
@@ -594,7 +595,22 @@ void main(void) {
 			}//else
 			if (plot[i] >= 7) peaks++;
 
-			fb[i] = dot<<plot[i];
+			if (bar) {
+				uint8_t dot=1;
+				if (bar == 3 && plot[i] >= 2) {
+					dot = 0x07;
+				}//if
+				else {
+					if (bar >= 2 && plot[i] >= 1)
+						dot = 0x03;
+				}//else
+				fb[i] = dot<<plot[i];
+			}//if
+			else {
+				fb[i] = 0;
+			}//else
+
+			//fb[i] = dot<<plot[i];
 		}//for
 		if (peaks >= 2 && agc < 10) agc++;		// too many band peaked, turn down sensitivity
 		if (!peaks && agc) agc--;				// none of the banks peaked, turn up sensitivity
