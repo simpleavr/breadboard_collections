@@ -21,6 +21,52 @@
    +=====================================================+
 
 
+   o o o . . o o o
+   o o o X . o o o
+   o o o . . o o o
+   . . . . . . . .
+   . . . . . . . .
+   o o o . . o o o
+   o o o . . o o o
+   o o o . . o o o
+
+   +=====================================================+
+   |  .  .  o--------------o  .  .  .  .  .  .  .  .  .  | 
+   |  .  .  .  .  .  +-----------------o-----------o  .  | 
+   |  .  . (-) .  .  |  .  .  .  +--+--+--+--+--+--+--+  | 
+   |  .  .  .  .  .  |  .  .  . C7 C6 R1 C0 R3 C5 C3 R0  | 
+   |  .  .  .  .  .  |  .+----------o                 |  | 
+   |  .  .  .  .  .  |  .| +--+--+--+--+--+--+--+--+--+  |
+   |                 |   ||G b6 b7 CK IO a7 a6 b5 b4 b3| |
+   |                 |   ||                            | |
+   |                 |   ||+ a0 a1 a2 a3 a4 a5 b0 b1 b2| |
+   |  .  .  .  .  .  |  .|.+--+--+--+--+--+--+--+--+--+  |
+   |  .  .  .  .  .  |  .+----o  +--+--+--+--+--+--+--+  |
+   |  .  .  .  .  .  |  .  .  . R4 R6 C1 C2 R7 C4 R5 R2  |
+   |  .  .  .  .  .  |  .  .  .  .  .  .  .  .  .  .  .  |
+   |  .  . (+) .  .  o=BTN=o  .  .  .  .  .  .  .  .  .  | 
+   |  .  .  o--------------o  .  .  .  .  .  .  .  .  .  | 
+   +=====================================================+
+
+
+   +=====================================================+
+   |  .  .  o--------------o  .  .  .  .  .  .  .  .  .  | 
+   |  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | 
+   |  .  . (-) .  .  .  .  .  .  +--+--+--+--+--+--+--+  | 
+   |  .  .  .  .  .  .  .  .  . C7 C6 R1 C0 R3 C5 C3 R0  | 
+   |  .  .  .  .  .  .  .+----------o--o              |  | 
+   |  .  .  .  .  .  .  .| +--+--+--+--+--+--+--+--+--+  |
+   |                     ||G b6 b7 CK IO a7 a6 b5 b4 b3| |
+   |                     ||                            | |
+   |                     ||+ a0 a1 a2 a3 a4 a5 b0 b1 b2| |
+   |  .  .  .  .  .  .  .|.+--+--+--+--+--+--+--+--+--+  |
+   |  .  .  .  .  .  .  .+----o  +--+--+--+--+--+--+--+  |
+   |  .  .  .  .  .  .  .  .  . R4 R6 C1 C2 R7 C4 R5 R2  |
+   |  .  .  .  .  .  .  .  .__.  .  .  .  .  .  .  .  .  |
+   |  .  . (+) .  .  .  .  o  o  .  .  .  .  .  .  .  .  | 
+   |  .  .  o--------------o  .  .  .  .  .  .  .  .  .  | 
+   +=====================================================+
+
 */
 
 #include <msp430.h>
@@ -28,11 +74,21 @@
 #include <stdint.h>
 #define G2412
 
-#define NO_C7	1	// not connecting C7 of led matrix as it interferes w/ 32khz xtal
+//#define NO_C7	1	// not connecting C7 of led matrix as it interferes w/ 32khz xtal
+#define ALT_LO	1
 
 const uint8_t row_col_map[] = { 
+#ifdef ALT_LO
+	// newest layout to avoid crystal failure, i.e. P2.6 not used for LED multiplexing
+	// R1+C3
+	((8|3)<<4|(0|7)), ((8|4)<<4|(0|3)), ((8|2)<<4|(0|4)), ((0|6)<<4|(8|4)), 
+	// R1+C6
+	//((8|3)<<4|(0|0)), ((8|4)<<4|(0|3)), ((8|2)<<4|(0|4)), ((0|6)<<4|(8|4)), 
+	((0|1)<<4|(8|0)), ((8|1)<<4|(8|5)), ((0|2)<<4|(0|0)), ((0|5)<<4|(8|7)),
+#else
 	((8|4)<<4|(8|3)), ((8|2)<<4|(0|2)), ((8|1)<<4|(0|3)), ((0|7)<<4|(8|5)), 
 	((0|0)<<4|(0|5)), ((8|0)<<4|(0|6)), ((0|1)<<4|(8|7)), ((0|4)<<4|(8|6)),
+#endif
 	// below is used when led matrix is turned around, i.e. 180 degrees
 	//((0|0)<<4|(0|4)), ((0|5)<<4|(0|6)), ((8|6)<<4|(0|7)), ((0|3)<<4|(0|1)), 
 	//((8|4)<<4|(8|2)), ((8|7)<<4|(0|2)), ((8|5)<<4|(8|0)), ((8|3)<<4|(8|1)),
@@ -99,7 +155,6 @@ const uint8_t menu_icon[3][8] = {
 	},
 #else
 	{
-	0b00000000,
 	0b00011100,
 	0b00100110,
 	0b01001001,
@@ -107,9 +162,9 @@ const uint8_t menu_icon[3][8] = {
 	0b01001001,
 	0b00100010,
 	0b00011100,
+	0b00000000,
 	},
 	{
-	0b00000000,
 	0b00001000,
 	0b00101010,
 	0b00011100,
@@ -117,9 +172,9 @@ const uint8_t menu_icon[3][8] = {
 	0b00011100,
 	0b00101010,
 	0b00001000,
+	0b00000000,
 	},
 	{
-	0b00000000,
 	0b00000000,
 	0b00100010,
 	0b01000001,
@@ -127,6 +182,7 @@ const uint8_t menu_icon[3][8] = {
 	0b01000001,
 	0b00100010,
 	0b00011100,
+	0b00000000,
 	},
 #endif
 };
@@ -139,7 +195,14 @@ const uint8_t menu_desc[] = {
 	MCHAR('A'),MCHAR('O'), 
 	};
 
+#ifdef ALT_LO
+#define Px(reg)       P2##reg
+#define BUTTON_PIN 		BIT4
+#else
+#define Px(reg)       P2##reg
 #define BUTTON_PIN 		BIT3
+#endif
+
 #define SECONDS_TO_SLEEP	8
 
 const uint8_t dice[] = { 0x10, 0x28, 0x54, 0x45, 0x55, 0x6d, }; // dice matrix
@@ -510,19 +573,19 @@ void main(void) {
 					while (ticks%4) asm(" nop");		// sync to 1/4 sec ticks
 					P1DIR = P1OUT = 0;
 					P2DIR = P2OUT = 0;
-					P2REN = BUTTON_PIN;
+					Px(REN) = BUTTON_PIN;
 
 					/* tried below to lower power, didn't see difference
 					P1DIR = 0xff;
-					P2DIR &= ~BUTTON_PIN;
+					Px(DIR) &= ~BUTTON_PIN;
 					P1OUT = 0;
 					P2OUT = 0;
 					P1REN = P2REN = 0xff;
 					*/
 
-					P2IES &= ~BUTTON_PIN;	// low-high trigger
-					P2IFG &= ~BUTTON_PIN;	// clear
-					P2IE = BUTTON_PIN;	// pin interrupt enable
+					Px(IES) &= ~BUTTON_PIN;	// low-high trigger
+					Px(IFG) &= ~BUTTON_PIN;	// clear
+					Px(IE) = BUTTON_PIN;	// pin interrupt enable
 
 					BCSCTL3 = XCAP_3;
 					P2SEL = BIT6|BIT7;		// need xtal
@@ -533,8 +596,8 @@ void main(void) {
 					_BIS_SR(LPM3_bits + GIE);	// now i and deep sleep
 
 					// we wake up here
-					if (P2IFG & BIT3) {		// from keypress
-						while (P2IN&BUTTON_PIN) __asm(" nop"); 	// make sure key is not depressed
+					if (Px(IFG)&BUTTON_PIN) {		// from keypress
+						while (Px(IN)&BUTTON_PIN) __asm(" nop"); 	// make sure key is not depressed
 						if (last_mode && last_mode < 5 && !sleep_at) mode = last_mode - 1;
 						else mode = 5;
 						state |= ST_PRESSED;
@@ -667,7 +730,7 @@ void main(void) {
 		//___________ check button
 		uint16_t wait=0;
 
-		P2REN = BUTTON_PIN;
+		Px(REN) = BUTTON_PIN;
 		do {
 			if (wait == 0x0040) {
 				state |= ST_PRESSED;
@@ -676,6 +739,17 @@ void main(void) {
 				if (wait++ > 0x6000) {
 					state &= ~ST_PRESSED;
 					state |= ST_HOLD;
+/*
+#ifdef ALT_LO
+					if (wait & 0x0f) {
+						P2DIR = P2OUT = 0;	// off cycle, don't burn our led
+					}//if
+					else {
+						P2DIR = BIT3|BIT7;
+						P2OUT = BIT3;
+					}//else
+#else
+*/
 					//_____ flash a dot to show long press accepted
 					if (wait & 0x0f) {
 						P1DIR = P1OUT = 0;
@@ -684,14 +758,20 @@ void main(void) {
 						P1DIR = BIT1|BIT2;
 						P1OUT = BIT1;
 					}//else
+//#endif
 				}//if
 			}//else
 			wait++;
-		} while (P2IN & BUTTON_PIN);
-		P2REN = 0;
+		} while (Px(IN)&BUTTON_PIN);
+		Px(REN) = 0;
 
+#ifdef ALT_LO
+		//____ addn buttons test P1.4+p1.3, then P1.2+P1.1
+		uint8_t button_test = BIT4;
+#else
 		//____ addn buttons test P1.3+p1.2, then P1.1+P1.0
 		uint8_t button_test = BIT3;
+#endif
 		while (button_test) {
 			P1DIR = P1OUT = button_test;
 			button_test >>= 1;
@@ -823,9 +903,16 @@ __interrupt void watchdog_timer (void) {
 	//WDTCTL = WDTPW + WDTHOLD + WDTNMI + WDTNMIES;
 }
 //______________________________________________________________________
+/*
+#ifdef ALT_LO
+#pragma vector=PORT1_VECTOR
+__interrupt void port1_isr(void) {
+#else
+*/
 #pragma vector=PORT2_VECTOR
 __interrupt void port2_isr(void) {
-	P2IE &= ~BUTTON_PIN;	// disable pin interrupt
+//#endif
+	Px(IE) &= ~BUTTON_PIN;	// disable pin interrupt
 	_BIC_SR_IRQ(LPM3_bits);	// wake up, got keypressed
 }
 
