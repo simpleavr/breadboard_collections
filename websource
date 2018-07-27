@@ -1,0 +1,1007 @@
+
+:h2 Breadboard Collections
+
+A collection of MSP430 mini projects (mostly LED) that requires no soldering and can be easily assembled w/ a 170 tie-point mini-breadboard.
+
+:ul
+l(Joule Thief LED Tree;jt_ledtree.html)
+l(5P4W Clock;5p4w_clock.html)
+l(Kitchen Timer;ktimer.html)
+l(Audio Spectrum Analyzer;nfft.html)
+l(Simon Game;simon.html)
+l(Tix Clock;tix.html)
+
+
+::H 5p4w_clock
+
+:h2 5P4W Clock
+R([October 2015]) Originally created.
+R(UNDER CONSTRUCTION and source code not yet available)
+
+b(5 Parts 4 Wires Clock. Digital clock built with minimal components and wirings.)
+
+:v xstWVbSO-zU
+
+:i 5p4w01.jpg
+
+All components on a mini breadboard
+
+:h3 Description
+
+This is a redo of an older project 3p4w clock. The 3p4w clock is one of my attempts to create the most simple MCU based clock project. It was based on a 14 pin MSP430G2231 device from the then $4.30 TI launchpad development system.
+
+Since then the TI launchpad G2 had changed and instead includes 20 pin devices like MSP430G2553 and MSP430G2452. I had also find ways to incorporate use of clock crystals and thus improve the accuracy of the project.
+
+The 5p4w clock design inherits the LED multiplexing design of the 3p4w clock. The additional parts making it a 5p over 3p is the 32Khz clock crystal being added and I also count the battery holder as another part. This clock also carries the optional alarm (auto detect) and houses the original easter-egg application.
+
+buzzer is optional for alarm and timer
+
+:i 5p4w02.jpg
+
+:h3 Features
+
+:ul
+Minimal components, 3 parts (4 parts if you need alarm)
+4 jumper wires on a mini breadboard
+Battery operated from 3V
+Use of 32Khz clock crystal to keep time, power-down sleep mode (LPM3) takes less than 1uA power
+Ambient temperature read in metric and imperial units (MCU permitting)
+Optional alarm if you connects a buzzer (auto-detect), this will make the 6p4w clock
+
+:h3 Parts list
+
+:ul
+170 tie point mini breadboard
+MSP430G2412 (or other G/F series dip 20 pin devices w/ 4k flash)
+4 digits common cathode 7 segment LED display
+Tactile button
+32Khz clock crystal
+9mm passive buzzer
+CR2032 button cell holder (battery not included)
+all parts present
+
+:i 5p4w03.jpg
+
+:h3 Application Notes
+
+:ul
+If buzzer is connected, firmware allows for alarm setting and usage
+Single button press toggles thru hours + minutes, alarm on/off + seconds, and sleep modes
+Long press enters setup mode, subsequent long press rotates thru menu
+Menu items cycles thru SEt, ALr, Cnt, bri
+In 'SEt' time setup mode, short press enters setup
+Once in setup, short press toggle digit values (hours, minutes) and long press confirms choice of 12H or 24H display
+Likewise in 'ALr' alarm setup mode, hours and minutes can be entered
+Choice of alarm On or oFF
+'Cnt' selects the kitchen timer function, enter minutes and seconds, long press to confirm and starts count down
+When in sleep mode, MCU goes in power down mode, consuming less than 1uA of power, watchdog timer is set so that system wakes-up every 1/4 second. This is maintain by the 32Khz clock crystal
+In 'bri' dimmer setting, short presses cycles through available brightness levels, long press confirms setting
+led segment multiplexing includes time delays to compensate for brightness differences for individual digits. ie. when displaying a digit '8' we stay longer than displaying a digit '1' to compensate for the loss of brightness when driving multiple segments.
+menu selected to set up alarm
+
+:i 5p4w04.jpg
+
+:h3 Breadboard Layout
+
+:pre
+:p
+:code
+   +=====================================================+
+   |  .  o-----(W3)-----o  .  .  .  .  .  .  .  .  .  .  | XT 32Khz clock crystal
+   |  . (-) .  .  .  .  .  oXTo  .  o---(W1)-----------+ | W1 joins IO pin to a2
+   |                \   .  .  .  o---(w2)----------o  .| | W2 joins CK pin to b3
+   |                 :  .  .  .  .  .  .  .  .  .  .  .| | W3, W4 battery power to MCU
+   |                 :  ---+--+-(0)-A--F-(1)(2)-B--+- .| |
+   | Battery Holder  : |- b6 b7 CK IO a7 a6 b5 b4 b3|  | |
+   |                 : |+ a0 a1 a2 a3 a4 a5 b0 b1 b2|  | |
+   |                 :  ---+--+--+--+--+--+--+--+--+  .| |
+   |                 :  .  .  .  E  D (.) C  G (3) .  .| |
+   |                /.  .  .  .  .  .  .  .  .  .  .  .| |
+   |  . (+) .  .  .  .  .  .  .  x  .  x  .  +=BZR=o  .| | BzR buzzer, observe + sign
+   |  .  o------(W4)----o=BTN=o------------------------+ | BTN button
+   +=====================================================+
+                                 +=BZR=o (easter egg buzzer placement)
+:
+
+:h3 Schematic
+
+:pre
+:p
+:code
+                            MSP430G2xxx
+                         -----------------
+                        |            RESET|----------+
+          +-------------|TEST             |          |
+          |             |                 |          |        /|\
+          |    SEG G <--|P2.0         P1.0|-->       |    _|_  |
+          |  DIGIT 3 <--|P2.1         P1.1|--> SEG A +---o   o-- button
+          |          <--|P2.2         P1.2|--> SEG E
+          +- DIGIT 0 <--|P2.3         P1.3|--> SEG D
+               SEG B <--|P2.4         P1.4|--> SEG H
+             DIGIT 2 <--|P2.5         P1.5|--> SEG C
+      32Khz /-----------|P2.6(XIN)    P1.6|--> DIGIT 1
+    Crystal \-----------|P2.7(XOUT)   P1.7|--> SEG F
+                        |                 |
+
+:
+
+:h3 Assembling
+
+:ul
+Follow breadboard layout and place jumper wire on mini breadboard
+Place MSP430G2412 on breadboard
+Place Tactile Button
+Place Buzzer
+Place Battery Holder
+Finally place 7 Segment Led Module on top of mcu
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file 5p4wclock.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need 5p4wclock.c
+
+::H ktimer
+
+:h2 K-Timer
+R([October 2015]) Originally created.
+R(UNDER CONSTRUCTION and source code not yet available)
+
+b(Single Digit Kitchen Timer. Simple Construction)
+
+:v 4njROvqYT5o
+
+:h3 Description
+
+This is single digit timer project based on the msp430f2011 (or equivalent). It can be assembled with minimal parts. With one digit 7 segment display show minute units, this timer counts down at half-minute intervals. Half minutes are show w/ the decimal point.
+
+:i ktimer.jpg
+
+Each key-press adds half minute to the count down. The timer has a range of half minutes up to 9.5 minutes.
+
+The lone 7 segment display shows the remiaing time in minutes, with the decimal point indicating 1/2 minutes. Display blinks a few times when reaching each half-minute intervals.
+
+Buzzer will sound off and display flashes when time is up. Pressing the button will stop the alarm and place the timer into deep sleep mode.
+
+Upon next activation the timer starts showing the setting (time to count down) of the last activation.
+
+The circuit employs 7 output pins to drive the led segments directly. Current limiting resistors are eliminated to save breadboard estate and the led segments are not lit at all times so as not to burn out the led.
+
+
+:h3 Features
+
+:ul
+Minimal component count.
+Battery operated from 3V.
+Power-down sleep mode (LPM4) takes nA power.
+
+:h3 Parts list
+
+:ul
+170 tie point mini breadboard
+MSP430F2011 (or other G/F series dip 14 pin devices w/ 2k flash)
+Single digit common anode 7 segment LED
+Tactile button
+12mm passive buzzer
+CR2032 button cell holder (battery not included)
+
+:i ktimer_parts.jpg
+
+:h3 Application Notes
+
+:ul
+Each key-press adds half minute to the count down. Accept up to 9.5 minutes.
+key-press at 9.5 minutes places timer to sleep, thus cancelling the timer.
+Timer starts after 1 second of no key-press.
+Display flashes for each 30 second intervals.
+Buzzer sounds and display flashes 3 bars when time up.
+Single key-press will stop buzzer and place timer back to sleep.
+
+:h3 Breadboard Layout
+
+:pre
+:p
+:code
+
+   +=====================================================+
+   |  .  o-----------------------o  .  .  .  .  .  .  .  |
+   |  . (-) .  .  .  .  .  o+BZR=o  .  .  .  .  .  .  .  |
+   |                \   .  |  .  .  .  G  F  +  A  B  .  |
+   |                 :  .  |  .  .  o-----o  .  .  .  .  |
+   | CR 2032         :  .  |  .  +--+--+--+--+--+--+     |
+   | Battery Holder  :     |    |- b6 b7 CK IO a7 a6| .  |
+   |                 :     |    |+ a0 a1 a2 a3 a4 a5|    |
+   |                 :  .  |  .  +--+--+--+--+--+--+  .  |
+   |                 :  .  |  .  .  .  E  D  +  C  d  .  |
+   |                /.  .  +--------o  .  .  .  .  .  .  |
+   |  . (+) .  .  .  .  .  .  .  .  o-[Btn]--o  .  .  .  |
+   |  .  o-----------------------o-----------o  .  .  .  |
+   +=====================================================+
+:
+
+:i ktimer_bb.jpg
+
+:h3 Schematic
+
+:pre
+:p
+:code
+
+         /|\                MSP430F2011
+          |              -----------------          Vcc
+          +-------------|RESET            |         /|\
+                N.C. <--|TEST             |          |
+                        |                 |   _|_    |
+                        |             P1.0|--o   o---+----( Buzzer )--+
+                        |             P1.1|--> SEG E                  |
+                        |             P1.2|--> SEG D                 _|_
+                        |             P1.3|--> Vcc                   ///
+                        |             P1.4|--> SEG C
+                        |             P1.5|--> SEG D
+               SEG F <--|P2.6(XIN)    P1.6|--> SEG B
+               SEG G <--|P2.7(XOUT)   P1.7|--> SEG A
+                        |                 |
+
+:
+
+:h3 Assembling
+
+:ul
+Follow breadboard layout and place jumper wire on mini breadboard
+Place MSP430F2011 MCU, *be sure to put sleeve on CK pin
+Place Tactile Button
+Place Buzzer
+Place Battery Holder
+Finally place 7 Segment Led Module on top of mcu
+
+
+The layout of components are restricted by the mini breadboard available junctions. The MCU's CK and IO (reset) pins are not isolated as the placement of the LED module does not allow that. There will be some ghosting on LED segment F caused by the fact that CK pin is not isolated. To avoid this we can isolate this pin by putting a "sleeve" on this pin. The sleeve is acutally the coating of a breadboard wire (I am using Cat3 cables).
+
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file ktimer.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need ktimer.c
+
+::H simon
+
+:h2 Mini Simon Game
+R([October 2015]) Originally created.
+R(UNDER CONSTRUCTION and source code not yet avaliable)
+
+b(Minimalist's Simon Game on a Breadboard)
+
+
+:h3 MSG Mini Simon Game
+
+<youtube here>
+
+:h3 Description
+
+This is a re-creation of a 70s game that tests memory. There are four different coloured LEDs and four buttons. The game play starts with blinks of randomized LEDs starting from one blinks. The player is to response and press the corresponding button. After that additional steps / LED blinks are added to the current sequence and repeats until the player fails to play the machine generated sequence.
+
+A buzzer provides four different tone of sound when individual LEDs lights up.
+
+This project does not have a power button, upon in-activity the MCU goes into deep sleep (LPM4) mode that consume nA levels of power.
+
+The MSG (Mini Simon Game) demonstrates a lot of IO techniques and advance use of timer, for period capture and pwm tone generation.
+
+:h3 Features
+
+:ul
+Minimal jumper wires, 4 on a mini breadboard
+Personalization via LED placements and leg lengths
+Battery operated from 3V
+Use of 32Khz clock crystal to keep time, power-down sleep mode (LPM3) takes less than 1uA power
+Parts list
+170 tie point mini breadboard
+MSP430F2011 (or other G/F series dip 14 pin devices w/ 2k flash)
+4 LEDs (blue, green, red and yellow)
+4 Tactile button
+9mm Buzzer
+CR2032 button cell holder (battery not included)
+
+:h3 Application Notes
+
+:ul
+To start game, press blue button, blue LED will blink three times
+Game play starts w/ the first blink
+Player response by pressing the corresponding button
+Player is considered failed if player press wrong button
+If there are no button press within 5 secounds, player is considered failed
+Game advances by introducing one more blink for each completed response
+Once failed, game is placed in deep sleep mode to conserve energy
+
+:h3 Breadboard Layout
+
+:pre
+:p
+:code
+   +=====================================================+
+   |  .  o-----(W1)--------o(W1a)o  .  .  .  .  .  .  .  | W1, W1a battery to -ve, buzzer (-)
+   |  . (-) .  .  .  .  . BZR .  o=BTN=o  .  o=BTN=o  .  | W2 battery to +ve
+   |                \   .  +  .+--(W3)-------+  .  .  .  | W3 +ve to IO (reset)
+   |                 :  .  o  .| .  o<<o  .  .  o>>o  .  | W4 a2 to buzzer (+)
+   |                 :  .  |  .| +--+--+--+--+--+--+     |
+   | Battery Holder  :     |   ||- b6 b7 CK IO a7 a6| .  | D   A
+   |                 :    (W4) ||+ a0 a1 a2 a3 a4 a5|    | C   B
+   |                 :  .  |  .| +--+--+--+--+--+--+  .  |
+   |                 :  .  |  .| .  o>>o  .  .  o>>o  .  |
+   |                /.  .  +---|----------o  .  .  .  .  |
+   |  . (+) .  .  .  .  .  .  .| o=BTN=o  .  o=BTN=o  .  |
+   |  .  o-----(W1)------------+-o  .  .  .  .  .  .  .  |
+   +=====================================================+
+:
+
+:h3 Schematic
+
+:pre
+:p
+:code
+                            MSP430G2xxx
+                         -----------------
+                        |                 |                   /|\
+                N.c. <--|TEST        RESET|--------------------+
+                        |                 |                    |
+                        |             P1.0|----|>|--+          |
+                        |                 |         |     _|_  |
+                        |             P1.1|---------+----o   o-+
+                        |                 |                    |
+                        |             P1.7|----|>|--+          |
+                        |                 |         |     _|_  |
+                        |             P1.6|---------+----o   o-+
+                        |                 |
+                        |             P1.3|--------------------+
+                        |             P1.4|----|>|--+          |
+                        |                 |         |     _|_  |
+                        |             P1.5|---------+----o   o-+
+                        |                 |
+                        |             P2.6|---|<|---+
+                        |                 |         |     _|_
+                        |             P2.7|---------+----o   o-+
+                        |                 |                   _|_
+                        |                 |                   ///
+:
+
+
+:h3 Assembling
+
+:ul
+Follow breadboard layout and place jumper wire on mini breadboard
+Place MSP430F2011 on breadboard
+Place LEDs
+Place Tactile Buttons
+Place Battery Holder
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file simon.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need simon.c
+
+::H tix
+
+:h2 Tix Clock Gems
+R([October 2015]) Originally created.
+b(Tix Clock Implemented In a Gem Mine Diorama.)
+
+:v ujTU1ziXk1o
+
+:h3 Description
+
+This TIX clock implementation is a great first time project for beginners. Apart from visually pleasing, the clock is of practical use and keeps accurate time via it's 32Khz clock crystal. The construction is easy as there are only 4 breadboard wires involved.
+
+At the same time it allows certain creativity in that 1) LEDs within the same group can be rellocated for different patterns, and 2) the length of individual LEDs can vary as to different a personalized LED gem "landscape".
+
+The TCG (Tix Clock Gems) demonstrates LED charliplexing in groups and usages of timers.
+
+:i tix.jpg
+
+Tix Clock Tells Time is 8:42
+
+
+
+
+:h3 Features
+
+:ul
+Minimal jumper wires, 4 on a mini breadboard
+Personalization via LED placements and leg lengths
+Battery operated from 3V
+Use of 32Khz clock crystal to keep time, power-down sleep mode (LPM3) takes less than 1uA power
+
+:i tix_features.jpg
+
+in sleep mode
+
+:h3 Parts list
+
+:ul
+170 tie point mini breadboard
+MSP430G2412 (or other G/F series dip 20 pin devices w/ 4k flash)
+Lots of LEDs (1 blue, 9 green, 6 yellow, 9 red)
+Tactile button
+32Khz clock crystal
+CR2032 button cell holder (battery not included)
+
+
+:h3 Application Notes
+
+:ul
+Single button press shows time for a few seconds, TCG returns to sleep after that
+Long press setup time, starting with the hours, related LEDs starts to blink
+Short press advance the hour value. Another Long press confirms the entry
+The tenths of the minutes and the minutes are subsequently entered like the hour
+Once the hours and minutes (tenths and singles) have been entered, TCG returns to show mode
+
+:i tix_apps.jpg
+
+
+:h3 Breadboard Layout
+
+:pre
+:p
+:code
+
+   +=====================================================+
+   |  .  o-----(W3)-----o  .  .  .  .  .  .1>.  .8>.  .  |
+   |  . (-) .  .  .  .  .  .  .  .  .  .+>.  .4>.  .3>.  |
+   |                \.  .  oXTo  .  .  .  .<5.  .<6.  .  | XT 32Khz Clock Crystal
+   |                 :+-(W1)--------o  .<7.  .<2.  .<9.  | W1 +ve battery to IO (reset)
+   | Battery Holder  :| ---+--+--+--+--+--+--+--+--+  o  | W2 b2 to led extension column
+   |                 :||- b6 b7 CK IO a7 a6 b5 b4 b3| |  | W3, W4 battery power to MCU
+   |                 :||+ a0 a1 a2 a3 a4 a5 b0 b1 b2|(W2)|
+   |                 :| ---+--+--+--+--+--+--+--+--+  |  |
+   |                 :| .  .  .1>.  .9>.  .1>.  .2>.  |  | > side of led is anode (longer leg)
+   |                /.| .  .2>.  .3>.  .4>.  .3>.  o--+  |
+   |  . (+) .  .  .  .| .  .  .<6.  .<5.  .<6.  .<5.  .  |
+   |  .  o-----(W4)---+-o-[B]-o  .<4.  .<7.  .<8.  .  .  |
+   +=====================================================+
+:
+
+:h3 Schematic
+
+:pre
+:p
+:code
+                            MSP430G2xxx
+                         -----------------
+                        |                 |                   /|\
+                     <--|TEST        RESET|--------------------+
+                        |                 |                    |
+               ~~~~~~~~ |P2.0         P1.0|--> ~~~~~~~    _|_  |
+              {         |P2.1         P1.1|-->        }--o   o-+ button
+              { Magic   |P2.2         P1.2|-->        }
+              {  LOL    |P2.3         P1.3|-->  Many  }
+              {         |P2.4         P1.4|-->  LEDs  }
+               ~~~~~~~~ |P2.5         P1.5|-->        }
+      32Khz /-----------|P2.6(XIN)    P1.6|-->        }
+    Crystal \-----------|P2.7(XOUT)   P1.7|--> ~~~~~~~
+                        |                 |
+
+:
+
+:h3 Assembling
+
+Follow breadboard layout and place jumper wire on mini breadboard
+Place MSP430G2412 on breadboard
+Place Tactile Button
+Cut your LEDs into different lengths, *be sure to maintain one leg longer
+Place LEDs in groups of (1..9), opposing pairs on the same pin can be swapped for effect. Ex at b0-b1 #3 and #8  can be swapped. The "+>" is the blue LED indicating 10+ hours
+Place Battery Holder
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file tix.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need tix.c
+
+::H nfft
+
+:h2 Breadboard Audio Spectrum Analyser
+R([October 2015]) Originally created.
+:v ODHvRk2EyS0
+
+
+b(Breadboard Audio Spectrum Analyzer.)
+
+:i nfft01.jpg nfft02.jpg
+
+
+:h3 Description
+
+This is a resurrected project from a breadboard prototyping exercise I did on 2013. The core logic is the same as my 8 Bit FFT Spectrum Analyzer, except I am using a slightly better op-amp and I have LED matrix for display instead of an LCD module. Also the number of bands shown is 8 instead of 16.
+
+This project is microphone based and require minimal external components. 2 x LR44 coin cells are used so that I can have the whole structure working in the confines of a 170 tie-point mini breadboard.
+
+ADC10, TimerA interrupt LPM wakeup, TimerA PWM like output, button use, integer arithmetic are used and demonstrated.
+
+:h3 Features
+
+:ul
+8 bit integer FFT
+16 samples at 500Hz separation
+shows 8 amplitudes of 1K, 1.5K, 2K, 3K, 4K, 5K, 6K, 7.5K non-linear
+partial logarithm map to show amplitudes, limited as resolution has been reduced for 8 bit FFT
+TLC272 one stage mic pre-amp at 100x times 100x gain (you can experience w/ 2 stages)
+menu selectable optional Hamming window
+menu adjust 4 levels brightness
+menu adjust 8 levels sample rate / response time
+2 x LR44 coin cell powered "on board"
+
+:h3 Parts / Bill of Materials
+
+This is what's needed for this project
+
+:ul
+MSP430G2452 (the extra chip from TI Launchpad G2, or any 4K 20 pin MSP430G series MCU)
+a 170 tie-point mini breadboard or perf board for pre-amp construction
+a TLC272 Dual op-amp
+mini electret microphone
+47k (pull-up), 100k, 2 x 10k, 1k resistors
+1 x 0.1uF
+jumper wires
+double row male pin header to be used for battery holder
+2 x LR44 coin cell battery
+
+:h3 Schematic
+
+:pre
+:p
+:code
+     MSP430G2452 or similar, need 4K Flash
+     TLC272 Dual Op-Amp, GBW @1.7Mhz, @x100 gain, bandwidth up to 17Khz
+
+   * we are using one stage of the TLC272 only
+
+                                              ._____________.
+                                              | MSP430G2452 |  Vcc
+                                              |             |   |
+                     +-----------------------2|ADC0         |1--+
+                     |                        |             |   |.
+                     |                    Vcc |             |  | | pull-up (47k)
+   Vcc     Vcc       |   ---------------   |  |             |  |_|
+    |       |        +-1|----.       Vcc|8-+  |             |   |
+    |.      |.       |. |    ^      .---|7    |             |16-+
+   | |10k  | |10k   | | |   / \     ^   |     |             |
+   |_|     |_|  100k|_| |  /__+\   / \  |     |            /|--- (see breadboard layout)
+    | .1u   |        |  |   | |   /__+\ |     |           / |------_______
+    +--||---|-[ 1k]--+-2|---+ |    | |  |     |    15 GPIO  |     |       |
+    |       +----------3|-----+    +-|--|6    |    P1.1-P1.7|     | 8x8   |
+    |       |        +-4|Gnd         +--|5    |    P2.0-P2.7|     | LED   |
+    |+      |        |   ---------------      |             |     | matrix|
+  ((O))     |.       |                        |           \ |     |_______|
+    |MIC   | |10k    |                    +-20|Gnd         \|--------
+    |      |_|       |                    |   |_____________|
+   _|_     _|_      _|_                  _|_
+   ///     ///      ///                  ///
+
+:
+
+:h3 Application Notes
+
+:i nfft_app01.jpg nfft_app02.jpg
+
+:ul
+Short key press in display mode cycles through no dot, one dot, 2 dots, and 3 dots display.
+Long press enters setup mode, subsequent long press rotates thru menu.
+Menu items cycles thru 'Hamming Window Option', 'Dimmer', 'Sampling / Refresh Rate'.
+In 'Hamming Window' setup mode, short presses cycles through no hamming, hamming 1, hamming 2, hamming 3, long press confirms setting.
+In 'Dimmer' setup mode, short presses cycles through available brightness levels from 0 to 3, long press confirms setting.
+In 'Sampling / Refresh rate' setup mode, short presses cycles through the available refresh rates from 0 to 7, 0 means no delay, long press confirms setting.
+Led segment multiplexing includes time delays to compensate for brightness differences for individual rows.
+
+:h3 LED Driving
+
+The LED matrix is of 8 x 8 elements. They are driven by 15 GPIO pins. They are multiplexed w/ 8 rows and 8 column scheme. Since there are only 15 pins after we use 1 pin for ADC input, the multiplexing has row 1 and column 0 sharing a single pin. This means that the particular LED on row 1 and column 0 cannot be lit. This is a compromise as there are just not enough GPIO pins to drive all LED elements.
+
+:h3 Sound Capture
+
+Sound is capture via the on board condenser microphone on the Educational BoosterPack. As microphone signals are small, we need to amplify it to a level that the msp430 ADC10 can use w/ a reasonable resolution. I had used a two-stage op-amp amplifier for this purpose.
+
+The op-amp amplifier is consist of two stages, each w/ a about 100x gain. I had adopt the TLC272 as it is also a very common part and it works w/ 3V. The gain bandwidth being about 1.7Mhz means that for our gain of 100x, we can only guarantee it would work nicely (i.e. maintain the gain we want) under 17Khz. (1.7Mhz / 100).
+
+Originally I intend to make this spectrum analyzer measure up to 16-20Khz, but in the end I found about 8Khz is good enough to show music. This can be changed by replacing the LM358 w/ something of audio-rated and changing the sampling rate. Just look for the gain bandwidth of the op-amps you choose.
+
+:h3 Sampling and FFT
+
+The FFT function used is the "fix_fft.c" code that many projects had adopted, it has been floating around in the internet for some years. I had tried a 16 bit version and a 8 bit version. Eventually I settled for the 8 bit version as for my purpose, I did not see a major advance on the 16 bit version.
+
+I do not have a good understanding of the FFT mechanism except that it's a time domain to frequency domain conversion. That means the rate (time) of the sound samples, after feeding to the FFT calculation function, will affect the frequency of the amplitude I am getting as a result. So by adjusting the rate to sample sound, I can determine the frequency band as the result.
+
+TimerA 0 CCR0 is used to keep the sampling time. We first determine the counts we need to achieve the band frequency (corresponds to our DCO clock rate of 16Mhz). i.e. TA0CCR0 set to (8000/(BAND_FREQ_KHZ*2))-1; where BAND_FREQ_KHZ is 8 for me. It can be changed if you got a better op-amp and / or wants it be different.
+
+Frequency Bands and Amplitude Scaling
+
+The firmware process 16 bands at one sweep, and the capture timing produces 500Hz separation between these banks. The LED matrix is of 8 columns and will only display 8 bands / amplitudes. Instead of displaying one every two bands, a non-linear frequency band list is used to show the more dynamic frequency bands (in terms of music). The list is of 500Hz gaps at the low end, 1KHz gaps in the middle bands and 1.5Khz bands in the highs.
+
+The amplitude of individual bands are scaled down to 8 levels, which are represented by the number of horizontal 'dots' on the LED matrix display.The amplitude levels are scaled down via a non-linear map that translates FFT results into one of the 8 dots. A sort-of logarithmic scaling is used as it best represent our perception of sound levels.
+
+There is built-in AGC logic and the spectrum analyser will try to scale down the amplitude levels when there are multiple peak levels detected in the previous cycles. This is done with a sliding ruler comparing table.
+
+:h3 Breadboard Layout
+
+:pre
+:p
+:code
+
+         G  V+            Gnd              (1 stage layout) WE ARE USING THIS LAYOUT
+   +=====================================================+          c0............c7
+   |  MIC.  .  .  .  .  .  .  +-----+  +--+  .  .  .  .  |        r0 o o o o o o o o
+   |  o||o  +-----[100k]---------------+  .  .  .  .  .  |        r1 X o o o o o o o
+   |  .  +--------------+--+  . C7 C6 R1 C0 R3 C5 C3 R0  |         . o o o o o o o o
+   |  .  .  .  .  .  .  |  .  .  | b6 a7              |  | c0 and r1 shares same pin and won't show
+   |  +  .  +--+--+--+  |  +--+--+--+--+--+--+--+--+--+  | *possible application to have c6 + c0 + r1
+   |  |    |V+        | | |G b6 b7  T  R a7 a6 b5 b4 b3| |  this will free up b6 for 32khz xtal clock
+   |  |    |   TLC272 | | |                            | |
+   |  |    out -  +  G| | |+ a0 a1 a2 a3 a4 a5 b0 b1 b2| |
+   |  +  .  +--+--+--+  |  +--+--+--+--+--+--+--+--+--+  |
+   |  o||o  o[]o  .  +--+  .  . R4 R6 C1 C2 R7 C4 R5 R2  |
+   |  .  .  .  .  o-[10k]--o  .  .  .  .  .  .  .  .  .  |
+   |  .  o-[1k]o  o[]o  .  .  .  .  .  .  .  .  .  .__.  |
+   |  o----[10k]-----------o  .  .  .  .  .  .  .  o  o  |
+   +=====================================================+
+     .1uF   100k  10k        ADC                   Button
+            +-----------------+
+
+   we are using one stage of the TLC272 only
+:
+
+:h3 Building the project
+
+You can start w/ the breadboard layout. And it's ASCII art so may not be very clear. You can pair w/ the photo below to identify all connections.
+
+:i nfft_build01.jpg
+
+The battery holder is made from a section of double male header pins. Use a pair of long nose pliers to pull out the middle pins, then bent the end pins to fit the two LR44 cells properly. Since there is no power switch, I use a thin piece of plastic tab to break the connection between the LR44s when not in use.
+
+:i nfft_build02.jpg
+
+I am using mps430-gcc to compile the firmware but it should go well with TI CCS. You can avoid all the trouble of installing IDEs or compilers by going to TI CCS cloud, which is a web based IDE. I will even download the firmware to your target device.
+
+:pre
+:p
+:code
+msp430--gcc -Os -Wall -ffunction-sections -fdata-sections -fno-inline-small-functions -Wl,-Map=nfft.map,--cref -Wl,--relax -Wl,--gc-sections -I/cygdrive/c/Users/chrisc/Desktop/energia-0101E0016/hardware/msp430/cores/msp430 -mmcu=MSP430G2553 -o nfft.elf nfft.c
+:
+
+I am using a TI Launchpad G2 as a programmer to program the MCU. I am not covering the installation / use of the tools as there are well written tutorials to cover that.
+
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file nfft.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need nfft.c
+
+
+::H mclock
+
+:h2 M-Clock
+
+R([July 2018]) Major revision done. Add digits mode, fix inaccuracy in clock crystal handling.
+R([October 2015]) Originally created.
+b(Minimalist's Clock? Multi-mode Clock? Matrix Clock?)
+
+:v NJHCcKLHL8E
+
+:h3 Minimalist Multi-mode Matrix Clock
+ 
+:i mclock.jpg
+ 
+:h3 Description
+ 
+This is a multi-mode clock project based on the MSP430G2432. It can be assembled with minimal parts. With limited 8x8 pixels display resolution, this 12 hour clock shows time in 6 different modes. This project is based on a older attiny 2313 project I did a few years ago.
+ 
+b(HHMM mode), (show below), typical hours plus minutes scrolling digits with colon separator. Photo below is not clear as the digits are scrolling.
+
+ 
+:i mclock_hhmm.jpg
+ 
+b(Seconds mode) (show below), shows only seconds.
+
+:i mclock_seconds.jpg
+ 
+ 
+b(Tix mode) (shown below), led matrix is divided into quadrant, the upper quadrants shows the hour in bcd (binary coded decimal) values. they are represented by the number of dots to indicate the digits. the lower quadrants show the minute in bcd. i.e. for 4:32 it shows no dot + 4 dots on the upper half and 3 dots + 2 dots on the lower half.
+
+:i mclock_tix.jpg
+
+ 
+b(Dice mode) (shown below), the led matrix is divided into two set of 'dices'. with the upper pair showing hour from 1 - 12, the lower pair of dice shows minutes in 5 minute increments. Upon every seconds the dice will rotate between possible values. For example, the 4th hour can be represented by 0 + 4, 1 + 3, and 2 + 2 combinations of 1 or 2 dices. Below, for 4:32 it shows dice value upper 4 + lower 6 (5 + 1), works out to be 4 hour, 6 x 5 = 30 min, with the odd 2 minute truncated as we only represent values of 5 minute increments.
+ 
+
+:i mclock_dice.jpg
+
+b(Digits mode) (show below), a small 3x3 condensed font is used to display both hour and minute without the need of scrolling the digits. The minutes digits shifts left and right on the second and the hour digit (when in the hour of 1 to 9) slides from right to left to indicate every 10 seconds advancement during the minute. 4:33 and about 30+ seconds are show in the example below. 
+
+:i mclock_digits.jpg
+ 
+b(Binary) (really it's bcd, or binary coded decimal) mode, (shown below) the hour, minute and second digits are show as binary dot on different columns in the led matrix. the columns 0 and 1 (from left) represents the hour digits, column 2 is blanked, columns 3 and 4 represent the minute digits, colum 5 is blanked, columns 6 and 7 represents the second digits. Below repsenting the time of 4:34:16.
+
+ 
+:i mclock_binary.jpg
+
+ 
+The circuit employs row and column multiplexing to drive the leds, one row at a time, this gives a 12.5% duty cycle when "sets" of leds (8 of them in each of the 8 rows) are turn on briefly. current limiting resistors are eliminated to save breadboard estate and as we are not constantly driving individual leds, they are not going to be damaged.
+ 
+The control (user interface) is also arranged so that we only use one tactile button for input. the firmware capture long button presses (press and hold) for menu rotation and normal button presses for menu selection.
+ 
+By migrating this project from an AVR mcu to a msp430 mcu I had made it possible to keep time a lot more accurately. During display (i.e. led on) the project runs at 1Mhz DCO. The msp430 mcu has factory calibrated clock values. When not displaying, this project enters a LPM3 (low-power mode 3) to conserve power. At LPM3 the DCO clock cannot be used and the project switches to use a 32Khz crystal based AClk to keep time.
+ 
+:h3 Features
+:ul
+Minimal component count, 5 parts.
+Minimal wiring, only 4 wires required.
+Battery operated from 3V to 3.6V.
+Use of watchdog timer to keep time, power-down sleep mode (LPM3) takes uA power.
+32Khz crystal to keep accurate time when sleep.
+Runs 1Mhz DCO calibrated clock when active (displaying time).
+This is a 12H clock, not 24H and has no AM/PM indicator.
+Easter egg application of Tetris game.
+:
+
+:h3 Parts list
+:ul
+MSP430G2432 (or other G series dip 20pin devices w/ 4k+ flash)
+8x8 LED matrix display (red only, this is a 3V project)
+tactile button, you need 3 if you want the Tetris game enabled
+32Khz clock crystal
+CR2032 or other 3V battery source 
+:
+ 
+:i mclock_parts.jpg
+
+:h3 Application Notes
+:ul
+Short key press in display mode cycles through HHMM, seconds, tix, dice, digits, binary and sleep modes.
+Long press enters setup mode, subsequent long press rotates thru menu.
+Menu items cycles thru 'Set Clock', 'Dimmer', 'Auto-off'.
+In 'Set Clock' setup mode, short presses increment digit values (hours, minutes) and long press confirms.
+In 'Dimmer' setup mode, short presses cycles through available brightness levels, long press confirms setting.
+In 'Auto-off' setup mode, short presses toggle the auto-off on and off. With auto-off turned on, the clock displays time for 12 seconds and turn itself into LPM3 sleep mode to converse power. With auto-off turned off, display is on continuously.
+When in sleep mode, MCU goes in power down mode, consuming less than 30uA of power, 32Khz crystal w/ watchdog timer is used to keep time. A pin interrupt is enabled to allow for wake up via tactile button. In this mode the main clock is disabled to conserve power.
+Led segment multiplexing includes time delays to compensate for brightness differences for individual rows.
+:
+ 
+:h3 Breadboard Layout
+ 
+the 8x8 led matrix has dot size of 1.9mm and is of common cathode, if you have common anode type, you can change a few lines in the code for adoption. see the following diagram and see if you have the right pin-outs. it appears they are quite common and if you purchase via ebay most suppliers have the same pin-out even if the model number is different.
+ 
+:i mclock_bb1.jpg mclock_bb2.jpg
+
+:pre
+:p
+:code
+
+   +=====================================================+
+   |  .  . (-)------------(-) o||o (1)---------------(1) | 32khz clock crystal
+   |  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  .  | 
+   |  .  . (-) .  .  .  .  .  .  +--+--+--+--+--+--+--+  | CR2032 button cell
+   |  .  .  .  .  .  .  .  .  . C7 C6 R1 C0 R3 C5 C3 R0  | 
+   |  .  .  .  .  .  .  .+------------(2)             |  | 
+   |  .  .  .  .  .  .  .| +--+--+--+--+--+--+--+--+--+  |
+   |                     ||G b6 b7 CK IO a7 a6 b5 b4 b3| |
+   |                     ||                            | | msp430 mcu
+   |                     ||+ a0 a1 a2 a3 a4 a5 b0 b1 b2| |
+   |  .  .  .  .  .  .  .|.+--+--+--+--+--+--+--+--+--+  |
+   |  .  .  .  .  .  .  .+---(2) +--+--+--+--+--+--+--+  |
+   |  .  .  .  .  .  .  .  .  . R4 R6 C1 C2 R7 C4 R5 R2  | 8x8 red led matrix
+   |  .  .  .  .  .  .  .  .__.  .__.  .  .  .  .  .__.  |
+   |  .  . (+) .  .  .  .  o  o  o  o  .  .  .  .  o  o  | tactile buttons (main, left, right)
+   |  .  . (+)------------(+) .  .  .  .  .  .  .  .  .  | 
+   +=====================================================+
+
+   . all (1)s, (2)s, (-) and (+) points are electrically connected
+   . left and right buttons are optional and only used for tetris game
+
+:
+:
+:
+
+:h3 Schematic
+:pre
+:p
+:code
+                            MSP430G2xxx
+                         -----------------
+          --------------|RESET            |
+          | ------------|TEST             |
+          | |           |                 |
+          | |   COL4 <--|P2.0         P1.0|--> ROW1 (of LED Matrix)
+ /|\      | |   ROW5 <--|P2.1         P1.1|--> ROW4
+  |  _|_  | --- ROW2 <--|P2.2         P1.2|--> ROW6
+  --o   o--COL7+ROW0 <--|P2.3         P1.3|--> COL1
+    Button      COL3 <--|P2.4         P1.4|--> COL2
+                COL5 <--|P2.5         P1.5|--> ROW7
+      32Khz /-- N.C. <--|P2.6(XIN)    P1.6|--> ROW3
+    Crystal \-- COL7 <--|P2.7(XOUT)   P1.7|--> COL0
+                        |                 |
+
+    Row 0 and Column 6 uses shared pin to avoid clock crystal conflicts, and led dot at R0+C6 will not light up
+    Optional buttons for Tetris game
+
+	|        |
+	|        |     _|_
+	|    P1.1|----o   o--+	(left game button)
+	|    P1.2|-----------+
+	|        |
+	|        |     _|_
+	|    P2.1|----o   o--+  (right game button)
+	|    P2.2|-----------+
+
+:
+:
+:
+
+:h3 Assembling
+:ul
+Follow breadboard layout and place two jumper wires on mini breadboard
+Place MSP430G2432 mcu
+Place 32Khz crystal
+Place Tactile Button
+Place power source (I am using CR2032 button cell)
+Finally place 8x8 led matrix on top of MSP430G2432
+:
+
+:h3 Easter Egg Tetris Game
+:i mclock_game.jpg
+
+With extra flash space on the MCU, I am able to squeeze in a Tetris like game. This easter egg application is eanbled by placing the additional / optional tactile buttons in the right breadboard positions.
+
+Pressing either game (left or right) buttons when the clock is showing will start the game. Game control is via the left and right buttons to move the game piece horizontally, and the clock button, in the game mode, will acts as the game piece rotation button. There is no speed drop in this implementation. When game ends (game pieces stacked up to the ceiling), the score (number of rows eliminated) will be shown briefly as 2 flashing digits.
+
+:v lck_ptUh88Y
+
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file nfft.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need nfft.c
+
+
+
+::H jt_ledtree
+
+:h2 Joule Thief Mini Christmas Tree
+
+R([December 2017]) Originally created.
+b(A minimalist 1.5V coin cell led tree with all components and power source confined within a mini breadboard.)
+
+:v r7xlT_eYZ-I
+
+:i jt_ledtree_01.jpg
+
+:h3 Description
+
+This is a holiday project targeting the 2017 December l(HackaDay;https://hackaday.io/project/28627-joule-thief-mini-christmas-tree) coin cell challenge.
+The objective is to employ a 1.5V button cell to drive microcontroller based holiday led display.
+A minimalist design with all components and power source confined within a mini breadboard.
+A joule thief circuit is used to step up the voltage from the 1.5V button cell to power the microcontrollers and leds.
+
+:h3 Details
+
+:i jt_ledtree_02.jpg
+
+:ul
+A joule thief circuit is used to step up the voltage from the 1.5V button cell to power the microcontrollers and leds.
+A push button instead of a switch is used to complete the joule thief circuit.
+Initial push button depress starts the joule thief and supply start up voltage to the microcontroller (which operates at 1.8V to 3.6V).
+A zener diode limits the maximum voltage to 3.3V. This can be replaced by a 3.6V zener if higher voltage is needed
+Once the microcontroller boots up, and the push button releases, the microcontroller takes control of the joule thief.
+Microcontroller samples the supply voltage via internal ADC and switch on the joule thief (mimicking a push button depress) when voltage is less than 3.2V and switch it off when voltage is below 3.2V. This provide certain efficiency benefits to the otherwise inefficient joule thief circuit. The voltage threshold can be altered via source code change.
+The led christmas tree cycles in a fixed lighting sequence.
+There are 4 + 1 different display modes; breathing, solid, throbing, and twinkle, plus an automatic cycling of the four modes.
+The display starts w/ a breathing display mode when initially turned on, and cycles between the above-mentioned 4+1 modes upon keypress.
+The same I/O pin is used for switching the joule thief and for push button reading. The firmware switches the I/O pin periodically to input and reads the button state.
+A long keypress will shut-down the display via switching off the joule thief, leading to collapse of the voltage supplying to the microcontroller.
+The entire build incluing power is on a 170 tie-point mini breadbroad.
+This project demonstrates an switching joule thief design, timers and interrupts, analog digital conversion usage, and LED multiplexing / charlieplexing.
+
+:h3 Application Notes
+
+:i jt_ledtree_03.jpg
+
+:ul
+Single button press turns on led tree
+Subsequent single button press (indicate by top led on) rotates these display modes; breathing, solid, throbing, and twinkle, and cycling
+Long press (indicate by 2 led on) turns off led tree
+
+:h3 Breadbroad Layout
+
+
+:pre
+:p
+:code
+                +=====================================================+
+                |                                                     |
+                |  .  o-----------------o  .  .  .  .  .  .  .  .  .  |
+                |                                                     |
+     -||-  10pF |  o  o---||---o  o |.  o  .  .  .  .  .  .  .  .  .  |
+                |   \_______o     +-||--+  (1.5V button cell)         |
+     -[]-  100k |  o[]o  o  o  o  o |.  o  .  .  .  .  .  .  .  .  .  |
+    /CBE\ BC547 |   /cBE\ \EBC/                                       |
+     -uu- 100uH |  o  o  o  .  ouuo  o--------------o  .  .  .  .  .  |
+                |                   ----------o                       |
+                |  o  .  o  .  o  ./ o  ---+--+--+--+--+--+  .  .  .  |
+      | |   47K | | |     \    |   | | |- b6 b7 CK IO a7 a6|          |
+      | |       | | |      \   |   | | |  MSP430G2231      |          |
+       |        |  |  +     |  |   | | |+ a0 a1 a2 a3 a4 a5|          |
+     .     47uF |  o  o  .  o  o  .| |  ---+--+--+--+--+--+  .  .  .  |
+      //        |      //          | \                                |
+        .       |  .  .  o  .  .  .| .\-o  .  (<2o  (<3)  .  .  .  .  |
+                |                  |                                  |
+     __n__  SW1 |  o__n__o  .  .  .| .  .  (<7)  (<0)  (<8)  .  .  .  |
+                |                  |                                  |
+     ->|- Diode |  .  o>|o  .  .  .| .  o  .  (1>)  (4>)  .  .  .  .  |
+                |     o------------|---/                              |
+     -|<- Zener |  o  o-|<--o  .  .| .  .  (6>)  (5>)  (9>)  .  .  .  |
+                |   \--------------/                                  |
+                +=====================================================+
+                                           (.>), (<.) 10 x LEDs
+                                               
+:
+
+:h3 Schematic
+
+:pre
+:p
+:code
+                                           _|_ 
+                       o------------------o   o            MSP430G2231
+                       |                  |   |            ._________.
+      o----------------|---uuuuu--o----o  |   |            |         |
+      |                |.         |    |  o---|-< PWM ---12|P2.7     | 10xLEDs
+      |               | |4.7k     |    |      |            |     P1.0|2--o--o
+      |               |_|         |    V      |            |         |   ^  V
+      |                |  ||10pF  |    -1N5819|            |     P1.1|3--o--o
+      |      o---------|--||------o    |      |            |         |   ^  V
+      |      |         |  ||      |    |      |            |     P1.2|4--o--o
+      |      |         |          |    |      |            |         |   ^  V
+      |      |  o------o-----o    |    o------o-< PWR -o--1|Vcc  P1.3|5--o--o
+      |      |  |.     |     |    |    |      |        |   |         |   ^  V
+    __|__    | | |100k |     |    |    |      |        o-10|RST  P1.4|7--o--o
+     ---     | |_|     |     |    |    |      |            |         |   ^  V
+      |1.5V  |  |      |     |    |   ---47uF -1N5228  o-14|Vss  P1.5|7--o--o
+      |      |  |    |/      |  |/    ---     ^3.3v    |   |_________|
+      |      o--o----|       o--|      |      |        |
+      |              |> BC547s  |>     |      |        |
+      |               |          |     |      |        |
+     _|_             _|_        _|_   _|_    _|_      _|_
+     ///             ///        ///   ///    ///      ///
+
+:
+
+
+:h3 Assembling
+
+:i jt_ledtree_04.jpg
+
+:ul
+Follow breadboard layout and place jumper wire on mini breadboard
+Place joule thief components with larger components go first
+Place MSP430G2231 on breadboard
+Cut your LEDs into different lengths, *be sure to maintain one leg longer
+The top most LED need extra long legs via soldering cut legs from a sibling
+Place LEDs accordingly, you can substitute different color LEDs that works up to 3.2V
+Battery Holder was made by reshaping pins in a double row male pin header section
+Parts / Bill of Materials
+
+This is what's needed for this project
+
+:ul
+1 x MSP430G2311 (can be substitute by MSP430F2012
+1 x 170 tie-point mini breadboard
+1 x 4.7k, 1 x 100k resistors
+1 x 10pF ceramic capacitor
+1 x 47uF electrolytic capacitor
+1 x 100uH inductor
+2 x BC547 or any small signal NPN transistor
+1 x 1N5819 or similar schottly diode
+1 x 1N5228 or any 3.3V zener diode (500mW)
+1 x tactile switch
+Jumper wires
+Double row male pin header to be used for battery holder
+1 x LR44 1.5V coin cell battery
+
+:h3 Source code
+
+Source code usually resides in my github repositories.
+For this particular project, the single C source file jt_ledtree.c is bundled in my l(breadboard collections repository;https://github.com/simpleavr/breadboard_collections). You just need jt_ledtree.c
+

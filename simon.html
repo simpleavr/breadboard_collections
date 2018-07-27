@@ -1,0 +1,104 @@
+<html>
+<head><link rel="stylesheet" type="text/css" href="../default.css"></head>
+<body>
+<br>
+<h2>Mini Simon Game</h2><br>
+<p><font color="red">[October 2015]</font> Originally created.</p>
+<p><font color="red">UNDER CONSTRUCTION and source code not yet avaliable</font></p>
+<p><b>Minimalist's Simon Game on a Breadboard</b></p>
+<h3>MSG Mini Simon Game</h3><br>
+<p><youtube here></p>
+<h3>Description</h3><br>
+<p>This is a re-creation of a 70s game that tests memory. There are four different coloured LEDs and four buttons. The game play starts with blinks of randomized LEDs starting from one blinks. The player is to response and press the corresponding button. After that additional steps / LED blinks are added to the current sequence and repeats until the player fails to play the machine generated sequence.</p>
+<p>A buzzer provides four different tone of sound when individual LEDs lights up.</p>
+<p>This project does not have a power button, upon in-activity the MCU goes into deep sleep (LPM4) mode that consume nA levels of power.</p>
+<p>The MSG (Mini Simon Game) demonstrates a lot of IO techniques and advance use of timer, for period capture and pwm tone generation.</p>
+<h3>Features</h3><br>
+<ul>
+<li>Minimal jumper wires, 4 on a mini breadboard</li>
+<li>Personalization via LED placements and leg lengths</li>
+<li>Battery operated from 3V</li>
+<li>Use of 32Khz clock crystal to keep time, power-down sleep mode (LPM3) takes less than 1uA power</li>
+<li>Parts list</li>
+<li>170 tie point mini breadboard</li>
+<li>MSP430F2011 (or other G/F series dip 14 pin devices w/ 2k flash)</li>
+<li>4 LEDs (blue, green, red and yellow)</li>
+<li>4 Tactile button</li>
+<li>9mm Buzzer</li>
+<li>CR2032 button cell holder (battery not included)</li>
+</ul>
+<h3>Application Notes</h3><br>
+<ul>
+<li>To start game, press blue button, blue LED will blink three times</li>
+<li>Game play starts w/ the first blink</li>
+<li>Player response by pressing the corresponding button</li>
+<li>Player is considered failed if player press wrong button</li>
+<li>If there are no button press within 5 secounds, player is considered failed</li>
+<li>Game advances by introducing one more blink for each completed response</li>
+<li>Once failed, game is placed in deep sleep mode to conserve energy</li>
+</ul>
+<h3>Breadboard Layout</h3><br>
+<pre>
+<p>
+<code>
+   +=====================================================+
+   |  .  o-----(W1)--------o(W1a)o  .  .  .  .  .  .  .  | W1, W1a battery to -ve, buzzer (-)
+   |  . (-) .  .  .  .  . BZR .  o=BTN=o  .  o=BTN=o  .  | W2 battery to +ve
+   |                \   .  +  .+--(W3)-------+  .  .  .  | W3 +ve to IO (reset)
+   |                 :  .  o  .| .  o<<o  .  .  o>>o  .  | W4 a2 to buzzer (+)
+   |                 :  .  |  .| +--+--+--+--+--+--+     |
+   | Battery Holder  :     |   ||- b6 b7 CK IO a7 a6| .  | D   A
+   |                 :    (W4) ||+ a0 a1 a2 a3 a4 a5|    | C   B
+   |                 :  .  |  .| +--+--+--+--+--+--+  .  |
+   |                 :  .  |  .| .  o>>o  .  .  o>>o  .  |
+   |                /.  .  +---|----------o  .  .  .  .  |
+   |  . (+) .  .  .  .  .  .  .| o=BTN=o  .  o=BTN=o  .  |
+   |  .  o-----(W1)------------+-o  .  .  .  .  .  .  .  |
+   +=====================================================+
+</code>
+</p>
+</pre>
+<h3>Schematic</h3><br>
+<pre>
+<p>
+<code>
+                            MSP430G2xxx
+                         -----------------
+                        |                 |                   /|\
+                N.c. <--|TEST        RESET|--------------------+
+                        |                 |                    |
+                        |             P1.0|----|>|--+          |
+                        |                 |         |     _|_  |
+                        |             P1.1|---------+----o   o-+
+                        |                 |                    |
+                        |             P1.7|----|>|--+          |
+                        |                 |         |     _|_  |
+                        |             P1.6|---------+----o   o-+
+                        |                 |
+                        |             P1.3|--------------------+
+                        |             P1.4|----|>|--+          |
+                        |                 |         |     _|_  |
+                        |             P1.5|---------+----o   o-+
+                        |                 |
+                        |             P2.6|---|<|---+
+                        |                 |         |     _|_
+                        |             P2.7|---------+----o   o-+
+                        |                 |                   _|_
+                        |                 |                   ///
+</code>
+</p>
+</pre>
+<h3>Assembling</h3><br>
+<ul>
+<li>Follow breadboard layout and place jumper wire on mini breadboard</li>
+<li>Place MSP430F2011 on breadboard</li>
+<li>Place LEDs</li>
+<li>Place Tactile Buttons</li>
+<li>Place Battery Holder</li>
+</ul>
+<h3>Source code</h3><br>
+<p>Source code usually resides in my github repositories.</p>
+<p>For this particular project, the single C source file simon.c is bundled in my <a href="https://github.com/simpleavr/breadboard_collections">breadboard collections repository</a>. You just need simon.c</p>
+<br><br>
+</body>
+</html>
